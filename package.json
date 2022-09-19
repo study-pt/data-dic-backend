@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/study-pt/data-dic-backend/issues"
   },
-  "homepage": "https://github.com/study-pt/data-dic-backend#readme"
+  "homepage": "https://github.com/study-pt/data-dic-backend#readme",
+  "engines": {
+    "node": ">= 12"
+  }
 }
