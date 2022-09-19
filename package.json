@@ -2,10 +2,10 @@
   "name": "data-dic-backend",
   "version": "0.0.1",
   "description": "data dictionary backend",
-  "main": "index.js",
+  "main": "./src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "start": "nodemon ./src/index.js"
   },
   "repository": {
     "type": "git",
@@ -19,5 +19,14 @@
   "homepage": "https://github.com/study-pt/data-dic-backend#readme",
   "engines": {
     "node": ">= 12"
+  },
+  "dependencies": {
+    "@koa/router": "^12.0.0",
+    "koa": "^2.13.4",
+    "koa-body": "^5.0.0",
+    "nodemon": "^2.0.20"
+  },
+  "devDependencies": {
+    "jest": "26.6.3"
   }
 }
