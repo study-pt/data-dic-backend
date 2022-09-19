@@ -1,0 +1,20 @@
+{
+  "name": "data-dic-backend",
+  "version": "0.0.1",
+  "description": "data dictionary backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/study-pt/data-dic-backend.git"
+  },
+  "author": "pimzh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/study-pt/data-dic-backend/issues"
+  },
+  "homepage": "https://github.com/study-pt/data-dic-backend#readme"
+}
