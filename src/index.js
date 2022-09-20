@@ -19,6 +19,7 @@ getPort().then(port => {
       getIp().forEach(ip => {
         msg += `\n    - Network: ${chalk.underline.green(`http://${ip}:${port}/`)}`
       })
+      // TODO: 与主进程通信，将端口号传递给主进程
       console.log(msg)
     })
 })
