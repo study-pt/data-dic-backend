@@ -1,4 +1,4 @@
-const creaetFac = () => {
+const creaetChalk = () => {
   const end = '\x1B[0m' // 颜色终止符
   const colorMap = {
     bright: '\x1B[1m',
@@ -25,21 +25,27 @@ const creaetFac = () => {
     whiteBG: '\x1B[47m', // 背景色白色
   }
   const colorKeys = Object.keys(colorMap)
-  const factore = (color) => {
+
+  const styleFactor = (colors) => {
     return function(str) {
-      return `${colorMap[color]}${str}${end}`
+      return `${colors.map(ele => colorMap[ele] || '').join('')}${str}${end}`
     }
   }
-  const chalk = {}
-  colorKeys.forEach(color => {
-    const instance = factore(color)
-    colorKeys.forEach(ele => {
-      instance[ele] = factore(ele)
+  const createFactor = (color) => {
+    const func = styleFactor([color])
+    colorKeys.forEach(col => {
+      func[col] = styleFactor([color, col])
     })
-    chalk[color] = instance
+    return func
+  }
+
+  const chalk = styleFactor([])
+
+  colorKeys.forEach(color => {
+    chalk[color] = createFactor(color)
   })
 
   return chalk
 }
 
-module.exports = creaetFac()
+module.exports = creaetChalk()
