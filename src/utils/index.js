@@ -7,7 +7,7 @@ exports.getIp = () => {
   const interfaces = require('os').networkInterfaces()
   for (const k in interfaces) {
     interfaces[k].forEach(instance => {
-      if (instance.family === 'IPv4' && instance.internal) {
+      if (instance.family === 'IPv4') {
         ips.push(instance.address)
       }
     })
