@@ -1,19 +1,21 @@
 const Koa = require('koa')
 const Router = require('@koa/router')
-const { getIp, getPort } = require('./utils')
+const { getIp, getPort, getOption } = require('./utils')
 const chalk = require('./utils/chalk')
 const { update } = require('./model/setting')
 
 const checkDataCatalog = (database) => {
   const fs = require('fs')
   const path = require('path')
-  fs.readdir(database, 'utf-8', (err) => {
-    if (!err) {
-      fs.mkdir(path.resolve(database, 'base'), { recursive: true }, err => {
-        if (err) {
-          throw err
-        }
-      })
+  try {
+    fs.readdirSync(database, 'utf-8')
+  } catch {
+    console.log(chalk.blue('\n  mkdir database catalog...'))
+    fs.mkdirSync(database)
+  }
+  fs.mkdir(path.resolve(database, 'base'), { recursive: true }, err => {
+    if (err) {
+      throw err
     }
   })
 }
@@ -21,8 +23,7 @@ const checkDataCatalog = (database) => {
 getPort().then(port => {
   const app = new Koa()
   const router = new Router()
-  // 会通过cli传入
-  const [database, static] = process.argv.slice(2)[0].split(',')
+  const { database, static } = getOption()
   update({ database, static })
   checkDataCatalog(database)
 

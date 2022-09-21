@@ -37,3 +37,35 @@ exports.getPort = (port = 2000) => {
   }
   return loop(port)
 }
+
+/**
+ * 获取配置项
+ * @return {Object} option
+ * @return {string} option.dir: 数据存放的目录，它应该是一个相对 cwd 的路径
+ */
+ exports.getOption = () => {
+  const process = require('process')
+  const path = require('path')
+  const cwd = process.cwd()
+
+  let option = undefined
+  try {
+    // 第一优先级
+    option = require(path.resolve(cwd, './data-dic.config.js'))
+  } catch {
+    // no such file
+  }
+  if (!option) {
+    try {
+      option = require(path.resolve(cwd, './package.json'))['data-dic']
+    } catch {
+      // no such file
+    }
+  }
+  // 配置大于约定
+  option = Object.assign({
+    database: path.resolve(__dirname, '../database'),
+    static: path.resolve(__dirname, '../static')
+  }, option)
+  return option
+}
