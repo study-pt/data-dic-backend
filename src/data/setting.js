@@ -1,6 +1,7 @@
 const setting = {
   database: '',
-  static: ''
+  static: '',
+  prefix: ''
 }
 
 exports.setting = setting

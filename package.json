@@ -24,7 +24,8 @@
   "dependencies": {
     "@koa/router": "^12.0.0",
     "koa": "^2.13.4",
-    "koa-body": "^5.0.0"
+    "koa-body": "^5.0.0",
+    "koa-static": "4.0.3"
   },
   "devDependencies": {
     "jest": "26.6.3",

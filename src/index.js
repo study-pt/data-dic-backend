@@ -1,10 +1,10 @@
 const Koa = require('koa')
-const Router = require('@koa/router')
+const Static = require('koa-static')
 const { getIp, getPort, getOption } = require('./utils')
 const chalk = require('./utils/chalk')
-const { update } = require('./model/setting')
+const { update } = require('./data/setting')
 
-const checkDataCatalog = (database) => {
+const checkDataCatalog = (database, static) => {
   const fs = require('fs')
   const path = require('path')
   try {
@@ -18,23 +18,46 @@ const checkDataCatalog = (database) => {
       throw err
     }
   })
+  fs.mkdir(static, { recursive: true }, (err) => {
+    if (err) {
+      throw err
+    }
+  })
 }
 
 getPort().then(port => {
   const app = new Koa()
-  const router = new Router()
-  const { database, static } = getOption()
-  update({ database, static })
-  checkDataCatalog(database)
+  const { database, static, prefix } = getOption()
+  update({ database, static, prefix })
+  checkDataCatalog(database, static)
+  // 更新setting之后注册
+  const router = require('./router')
 
   app
+    .use(async (ctx, next) => {
+      ctx.set({
+        'Access-Control-Allow-Origin': ctx.request.header.origin || '*',
+        'Access-Control-Request-Method': 'POST, OPTIONS, GET',
+        'Access-Control-Allow-Headers': 'x-requested-with,Content-Type,Accept,authorization',
+        'Access-Control-Allow-Credentials': 'true'
+      })
+      if (ctx.method.toLocaleUpperCase() === 'OPTIONS') {
+        ctx.response.status = 200
+      } else {
+        await next()
+      }
+    })
+    .use(Static(static))
     .use(router.routes())
     .use(router.allowedMethods())
     .listen(port, () => {
+      const prefix = router.opts.prefix || ''
+      const ipObj = getIp()
       let msg = '\n  Server running at:'
-      msg += `\n    - Local:   ${chalk.underline.green(`http://localhost:${port}/`)}`
-      getIp().forEach(ip => {
-        msg += `\n    - Network: ${chalk.underline.green(`http://${ip}:${port}/`)}`
+      Object.keys(ipObj).forEach(k => {
+        ipObj[k].forEach(ip => {
+          msg += `\n    - ${k}: ${chalk.underline.green(`http://${ip}:${port}${prefix}`)}`
+        })
       })
       try {
         process.send({ 'name': 'backend', port })

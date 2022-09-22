@@ -5,7 +5,7 @@ const {
 
 const getIpTest = () => {
   const reg = /[0-9\.a-z]+/
-  test.each(getIp())('got ip %s', str => {
+  test.each(getIp().local)('got ip %s', str => {
     expect(str).toMatch(reg)
   })
 }

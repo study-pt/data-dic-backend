@@ -1,18 +1,25 @@
 /**
  * 获取network ip
- * @return {Array<string>} ip list
+ * @return {Array<{Local:string[],Network:string[]}>} ip list
  */
 exports.getIp = () => {
-  const ips = []
+  const ipObj = {
+    Local: ['localhost'],
+    Network: []
+  }
   const interfaces = require('os').networkInterfaces()
   for (const k in interfaces) {
     interfaces[k].forEach(instance => {
       if (instance.family === 'IPv4') {
-        ips.push(instance.address)
+        if (instance.internal) {
+          ipObj.Local.push(instance.address)
+        } else {
+          ipObj.Network.push(instance.address)
+        }
       }
     })
   }
-  return ips
+  return ipObj
 }
 
 /**
@@ -65,7 +72,8 @@ exports.getPort = (port = 2000) => {
   // 配置大于约定
   option = Object.assign({
     database: path.resolve(__dirname, '../database'),
-    static: path.resolve(__dirname, '../static')
+    static: path.resolve(__dirname, '../static'),
+    prefix: '/data-dic'
   }, option)
   return option
 }
