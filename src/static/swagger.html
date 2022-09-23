@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swagger test</title>
+  <style>
+    :root {
+      --color-info: #909399;
+      --color-error: #f56c6c;
+      --color-warning: #e6a23c;
+      --color-success: #67c23a;
+      --color-primary: #409eff;
+      --font-size-sm: 12px;
+      --font-size-md: 16px;
+      --font-size-xl: 20px;
+      --font-size-lg: 24px;
+      --text-color-primary: #303133;
+      --text-color-regular: #606266;
+      --text-color-secondary: #909399;
+      --text-color-placeholder: #a8abb2;
+      --text-color-disabled: #c0c4cc;
+      --padding-base: 20px;
+      --margin-sm: 10px;
+      --margin-base: 20px;
+      --fill-color: #f0f2f5;
+      --fill-color-light: #f5f7fa;
+      --fill-color-lighter: #fafafa;
+      --fill-color-extra-light: #fafcff;
+      --fill-color-dark: #ebedf0;
+      --fill-color-darker: #e6e8eb;
+      --border-color: #dcdfe6;
+      --border-color-light: #e4e7ed;
+      --border-color-dark: #d4d7de;
+      --border-radius: 4px;
+    }
+    *{margin: 0;padding: 0;box-sizing: border-box;}
+    html, body {color: var(--text-color-primary);}
+    ul li, ol li {list-style: none;}
+    a, a:hover, a:focus, a:active, a:visited {color: var(--text-color-primary);text-decoration: none;}
+    .el-input {
+      width: 100%;
+      outline: none;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--border-color);
+      line-height: 24px;
+      padding: 0 8px;
+      color: var(--text-color-secondary);
+    }
+    .el-input:hover, .el-input:focus {border-color: var(--color-primary);}
+    .el-input-error {border-color: var(--color-error);}
+    .el-input-error:hover, .el-input-error:focus {border-color: var(--color-error);}
+    .el-textarea {height: 80px;}
+    .el-button + .el-button {margin-left: 6px;}
+    .el-button {
+      padding: 4px 8px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--border-color);
+      background-color: transparent;
+      outline: none;
+      cursor: pointer;
+      color: var(--text-color-secondary);
+    }
+    .el-button:hover, .el-button:focus {border-color: var(--color-primary);color: var(--color-primary);}
+    .padding-base {padding: var(--padding-base);}
+    .text-primary {color: var(--color-primary);}
+    .text-success {color: var(--color-success);}
+    .text-info {color: var(--color-info);}
+    .text-sm {font-size: var(--font-size-sm);}
+    .text-md {font-size: var(--font-size-md);}
+    .text-xl {font-size: var(--font-size-xl);}
+    .text-lg {font-size: var(--font-size-lg);}
+    .text-underline {text-decoration: underline;}
+    .relative {position: relative;}
+    .absolute {position: absolute;}
+    .cursor-pointer {cursor: pointer;}
+    .inline-block {display: inline-block;}
+    .margin-b-sm {margin-bottom: var(--margin-sm);}
+    .margin-b-base {margin-bottom: var(--margin-base);}
+    .flex {display: flex;}
+    .flex-1 {flex: 1;}
+    .tip-primary {
+      border-left: 4px solid var(--color-primary);
+      line-height: var(--font-size-lg);
+      color: var(--text-color-regular);
+      border-radius: var(--border-radius);
+      background-color: #409eff1a;
+      padding: 4px 10px;
+    }
+    .api-warpper {
+      margin-bottom: 5px;
+      line-height: var(--font-size-lg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      color: var(--text-color-secondary);
+    }
+    .api-content {
+      padding: 4px 10px;
+      border-bottom: 1px solid transparent;
+    }
+    .api-warpper:hover {
+      border-color: var(--color-primary);
+    }
+    .api-content span {
+      margin-left: 4px;
+    }
+    .api-content .type {
+      width: 35px;
+    }
+    .api-content .icon {
+      user-select: none;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%) rotate(0deg);
+      transition: transform 0.3s ease-in;
+    }
+    .api-warpper:hover .icon {
+      color: var(--color-primary);
+    }
+    .dropdown-wrapper {
+      visibility: hidden;
+      height: 0;
+      overflow: hidden;
+      will-change: height;
+      transition: height 0.3s ease-in, overflow 0s 0.3s;
+    }
+    .dropdown-wrapper > div {
+      padding: 10px;
+    }
+    .dropdown-visible {
+      border-color: var(--color-primary);
+    }
+    .dropdown-visible .icon {
+      color: var(--color-primary);
+      transform: translateY(-50%) rotate(90deg);
+    }
+    .dropdown-visible .api-content {
+      border-bottom-color: var(--color-primary);
+    }
+    .dropdown-visible .dropdown-wrapper {
+      visibility: unset;
+      height: 170px;
+      overflow-y: auto;
+    }
+    .api-input {
+      margin-bottom: 5px;
+    }
+    .api-label {
+      width: 114px;
+      text-align: right;
+      margin-right: 4px;
+    }
+  </style>
+</head>
+<body class="padding-base text-md">
+  <h1 class="text-lg margin-b-sm">Data Dic Backend Api</h1>
+  <p class="tip-primary margin-b-sm">接口文档</p>
+</body>
+
+<script>
+  const request = (method, url, data) => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.onreadystatechange = (ev) => {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            resolve(xhr.responseText)
+          } else {
+            reject(xhr.responseText)
+          }
+        }
+      }
+      xhr.open(method, url, true)
+      xhr.send(data)
+    })
+  }
+  request('get', '/prefix').then((response) => {
+    const prefix = response
+    const apis = [
+      {
+        name: 'Catalog Controller',
+        url: '/catalog',
+        api: [
+          {
+            type: 'GET',
+            url: '/get',
+            descrip: '获取目录'
+          },
+          {
+            type: 'POST',
+            url: '/post',
+            descrip: '新增目录'
+          },
+          {
+            type: 'POST',
+            url: '/put',
+            descrip: '修改目录'
+          },
+          {
+            type: 'GET',
+            url: '/delete',
+            descrip: '删除目录'
+          }
+        ]
+      },
+      {
+        name: 'Common Controller',
+        url: '/common',
+        api: [
+          {
+            type: 'GET',
+            url: '/get',
+            descrip: '通用的获取数据接口'
+          },
+          {
+            type: 'POST',
+            url: '/post',
+            descrip: '通用的新增数据接口'
+          },
+          {
+            type: 'POST',
+            url: '/put',
+            descrip: '通用的修改数据接口'
+          },
+          {
+            type: 'GET',
+            url: '/delete',
+            descrip: '通用的删除数据接口'
+          }
+        ]
+      }
+    ]
+
+    const h = (tag, attrs = {}, children) => {
+      const dom = document.createElement(tag)
+      Object.keys(attrs).forEach(k => {
+        if (k.startsWith('on')) {
+          dom.addEventListener(k.substring(2), attrs[k])
+        } else if (attrs[k] !== false) {
+          if (k === 'value') {
+            dom.value = attrs[k]
+          } else {
+            dom.setAttribute(k, attrs[k])
+          }
+        }
+      })
+      if (typeof children === 'string') {
+        dom.innerText = children
+      } else if (Array.isArray(children)) {
+        children.forEach(ele => {
+          dom.appendChild(ele)
+        })
+      }
+      return dom
+    }
+    
+    const createApiItem = (item) => {
+      const url = item.url
+      const isGet = item.type === 'GET'
+      const onTitleClick = (e) => {
+        const dom = e.target.className.includes('api-conten')
+          ? e.target
+          : e.target.parentElement
+        const downDom = dom.nextSibling
+        const parentEle = dom.parentElement
+        const visible = downDom.getAttribute('visible')
+        if (visible === '0') {
+          downDom.setAttribute('visible', '1')
+          parentEle.classList.add('dropdown-visible')
+        } else {
+          downDom.setAttribute('visible', '0')
+          parentEle.classList.remove('dropdown-visible')
+        }
+      }
+      const onTest = (data) => {
+        const input = document.getElementById('input-' + data.url)
+        const textarea = document.getElementById('textarea-' + data.url)
+        console.log(input, textarea)
+        request(data.type, data.url)
+      }
+      const onReset = (data) => {
+        document.getElementById('input-' + data.url).value = data.url
+        document.getElementById('textarea-' + data.url).value = data.param ? JSON.stringify(data.param, null, 2) : ''
+      }
+      return h('li', { class: 'api-warpper' }, [
+        h('p', {
+          class: 'api-content cursor-pointer relative',
+          onclick: onTitleClick
+        }, [
+          h('b', { class: 'type inline-block text-sm ' + (isGet ? 'text-primary' : 'text-success') }, item.type),
+          h('span', { class: 'text-underline' }, url),
+          h('span', { class: 'text-sm' }, item.descrip),
+          h('span', { class: 'absolute icon' }, '>')
+        ]),
+        h('ul', {
+          class: 'dropdown-wrapper',
+          visible: '0'
+        }, [
+          h('div', {}, [
+            h('li', {}, [
+              h('div', { class: 'flex api-input' }, [
+                h('label', { class: 'api-label' }, 'request url:'),
+                h('input', {
+                  id: 'input-' + url,
+                  class: 'el-input flex-1',
+                  placeholder: '请输入',
+                  value: url,
+                  readonly: isGet ? 'true' : false,
+                  onblur: (e) => {
+                    console.log('blur', e)
+                  }
+                }),
+              ]),
+              h('div', { class: 'flex api-input' }, [
+                h('label', { class: 'api-label' }, 'request ' + (isGet ? 'param' : 'data') + ':'),
+                h('textarea', {
+                  id: 'textarea-' + url,
+                  class: 'el-input el-textarea flex-1',
+                  placeholder: '请输入',
+                  value: item.param ? JSON.stringify(item.param, null, 2) : '',
+                  onblur: (e) => {
+                    if (item.param) {
+                      const value = e.target.value
+                      const hasErr = e.target.className.includes('el-input-error')
+                      try {
+                        e.target.value = JSON.stringify(JSON.parse(value), null, 2)
+                        if (hasErr) {
+                          e.target.classList.remove('el-input-error')
+                        }
+                      } catch {
+                        if (!hasErr) {
+                          e.target.classList.add('el-input-error')
+                        }
+                      }
+                    }
+                  }
+                })
+              ]),
+              h('div', { class: 'flex api-input' }, [
+                h('label', { class: 'api-label' }),
+                h('button', {
+                  class: 'el-button',
+                  onclick: () => onTest(item)
+                }, '请求测试'),
+                h('button', {
+                  class: 'el-button',
+                  onclick: () => onReset(item)
+                }, '重置参数')
+              ])
+            ])
+          ])
+        ])
+      ])
+    }
+    const createApi = (prefix, apis) => h('ul', {}, apis.map(api => createApiItem({ ...api, url: prefix + api.url })))
+
+    apis.forEach(ele => {
+      const name = ele.name
+      document.body.appendChild(
+        h('div', { class: 'margin-b-sm' }, [
+          h('h2', { class: 'text-xl margin-b-sm' }, [
+            h('a', { id: name, href: `#${name}` }, name)
+          ]),
+          createApi(prefix + ele.url, ele.api)
+        ])
+      )
+    })
+  })
+</script>
+</html>

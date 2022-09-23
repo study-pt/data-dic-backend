@@ -44,10 +44,13 @@ getPort().then(port => {
       if (ctx.method.toLocaleUpperCase() === 'OPTIONS') {
         ctx.response.status = 200
       } else {
+        if (ctx.URL.pathname === '/prefix') {
+          ctx.response.body = prefix
+        }
         await next()
       }
     })
-    .use(Static(static))
+    .use(Static(static, { defer: true }))
     .use(router.routes())
     .use(router.allowedMethods())
     .listen(port, () => {
