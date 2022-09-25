@@ -147,9 +147,12 @@
       margin-bottom: 5px;
     }
     .api-label {
-      width: 114px;
+      width: 116px;
       text-align: right;
       margin-right: 4px;
+    }
+    .res-input {
+      height: 150px;
     }
   </style>
 </head>
@@ -274,10 +277,35 @@
         }
       }
       const onTest = (data) => {
-        const input = document.getElementById('input-' + data.url)
-        const textarea = document.getElementById('textarea-' + data.url)
-        console.log(input, textarea)
-        request(data.type, data.url)
+        const resEl = document.getElementById('textarea-res-' + data.url)
+        let url = data.url
+        let params
+        if (data.param) {
+          const input = document.getElementById('input-' + data.url)
+          const textarea = document.getElementById('textarea-' + data.url)
+          if (textarea.className.includes('el-input-error')) {
+            resEl.value = '请求参数必须是json格式！'
+            return
+          }
+          url = input.value
+          params = JSON.parse(textarea.value)
+          if (data.type === 'GET') {
+            url += '?' + Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
+          } else {
+            params = undefined
+          }
+        }
+        request(data.type, url, params).then(res => {
+          if (resEl.className.includes('el-input-error')) {
+            resEl.classList.remove('el-input-error')
+          }
+          resEl.value = JSON.stringify(JSON.parse(res), null, 2)
+        }).catch(err => {
+          if (!resEl.className.includes('el-input-error')) {
+            resEl.classList.add('el-input-error')
+          }
+          resEl.value = err.toString()
+        })
       }
       const onReset = (data) => {
         document.getElementById('input-' + data.url).value = data.url
@@ -347,6 +375,14 @@
                   class: 'el-button',
                   onclick: () => onReset(item)
                 }, '重置参数')
+              ]),
+              h('div', { class: 'flex api-input' }, [
+                h('label', { class: 'api-label' }, 'response:'),
+                h('textarea', {
+                  id: 'textarea-res-' + url,
+                  class: 'el-input el-textarea flex-1 res-input',
+                  readonly: true
+                })
               ])
             ])
           ])
