@@ -25,22 +25,50 @@ exports.put = async (ctx) => {
 }
 
 exports.post = async (ctx) => {
-  const params = ctx.request.body
-  response(ctx, success(null, params))
+  const params = JSON.parse(ctx.request.body)
+  const data = catalog.get()
+
+  const checkName = (parent, name) => {
+    if (parent.find(ele => ele.name === name)) {
+      response(ctx, error('当前目录已存在，请换个名称吧'))
+      return false
+    }
+    return true
+  }
+  const filepath = params.filepath + '/' + params.name
+  const temp = {
+    name: params.name,
+    filepath,
+    alias: params.alias || null,
+    sort: params.sort,
+    isdir: true
+  }
+  if (!params.filepath) {
+    if (!checkName(data.data.children, params.name)) {
+      return
+    }
+    data.data.children.push(temp)
+  } else {
+    const { parent } = catalog.find(data.data.children, params.filepath)
+    if (!checkName(parent, params.name)) {
+      return
+    }
+    parent.push(temp)
+  }
+  
+  await catalog.add(setting.database, filepath)
+  catalog.update(data)
+  response(ctx, success('目录创建成功', data))
 }
 
 exports.delete = async (ctx) => {
   const filepath = ctx.query.filepath
-  if (!filepath) {
-    response(ctx, error('缺少必要字段：filepath'))
-    return
-  }
   const data = catalog.get()
-  const { finder, parent } = catalog.find(data.data.children, filepath)
-  if (finder === -1) {
+  const { index, parent } = catalog.find(data.data.children, filepath)
+  if (index === -1) {
     response(ctx, error('你正在试图删除不存在的filepath: ' + filepath))
   } else {
-    const removed = parent.splice(finder, 1)[0]
+    const removed = parent.splice(index, 1)[0]
     catalog.update(data)
     response(ctx, success('删除成功', data.data))
     catalog.delete(setting.database, removed)

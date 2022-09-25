@@ -1,6 +1,7 @@
 const catalog = require('../data/catalog')
 const path = require('path')
 
+
 exports.get = () => catalog.get()
 
 exports.getNew = (database) => {
@@ -24,15 +25,15 @@ exports.getNew = (database) => {
 }
 
 exports.find = (data = [], filepath) => {
-  let finder = -1
+  let index = -1
   let parent = null
   const loop = (arr = []) => {
     const len = arr.length
     let i = 0
-    while (i < len && finder === -1) {
+    while (i < len && index === -1) {
       const item = arr[i]
       if (item.filepath === filepath) {
-        finder = i
+        index = i
         parent = arr
         break
       } else if (item.isdir) {
@@ -43,16 +44,14 @@ exports.find = (data = [], filepath) => {
   }
   loop(data)
   return {
-    finder,
+    index,
     parent
   }
 }
 
 exports.update = (data) => catalog.post(data)
 
-exports.add = (data) => {
-  
-}
+exports.add = (database, filepath) => catalog.addDir(path.join(database, filepath))
 
 exports.delete = (database, file) => {
   if (file.isdir) {

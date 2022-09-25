@@ -193,7 +193,13 @@
           {
             type: 'POST',
             url: '/post',
-            descrip: '新增目录'
+            descrip: '新增目录',
+            param: {
+              name: '目录名称（一般为纯英文）',
+              alias: '目录别名',
+              sort: '目录排序的字段',
+              filepath: '父级目录路径'
+            }
           },
           {
             type: 'POST',
@@ -288,11 +294,11 @@
             return
           }
           url = input.value
-          params = JSON.parse(textarea.value)
           if (data.type === 'GET') {
-            url += '?' + Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
+            const obj = JSON.parse(textarea.value)
+            url += '?' + Object.keys(obj).map(k => `${k}=${obj[k]}`).join('&')
           } else {
-            params = undefined
+            params = textarea.value
           }
         }
         request(data.type, url, params).then(res => {
