@@ -54,12 +54,11 @@ getPort().then(port => {
     .use(router.routes())
     .use(router.allowedMethods())
     .listen(port, () => {
-      const prefix = router.opts.prefix || ''
       const ipObj = getIp()
       let msg = '\n  Server running at:'
       Object.keys(ipObj).forEach(k => {
         ipObj[k].forEach(ip => {
-          msg += `\n    - ${k}: ${chalk.underline.green(`http://${ip}:${port}${prefix}`)}`
+          msg += `\n    - ${k}: ${chalk.underline.green(`http://${ip}:${port}/swagger.html`)}`
         })
       })
       try {

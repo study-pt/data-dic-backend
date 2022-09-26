@@ -20,8 +20,42 @@ exports.get = async (ctx) => {
 }
 
 exports.put = async (ctx) => {
-  const params = ctx.request.body
-  response(ctx, success(null, params))
+  const params = JSON.parse(ctx.request.body)
+  const data = catalog.get()
+
+  if (params.filepath === '/base') {
+    response(ctx, error('不可修改元数据目录'))
+    return
+  }
+
+  const checkName = (parent, name) => {
+    if (parent.find(ele => ele.name === name)) {
+      response(ctx, error('目录已存在，请换个名称吧'))
+      return false
+    }
+    return true
+  }
+
+  const temp = {
+    name: params.name,
+    filepath: params.filepath,
+    alias: params.alias || null,
+    sort: params.sort,
+  }
+
+  const { index, parent } = catalog.find(data.data.children, params.filepath)
+  if (!parent) {
+    response(ctx, error(`目录 ${params.filepath} 不存在`))
+    return
+  }
+  if (parent[index].name !== params.name && !checkName(parent, params.name)) {
+    return
+  }
+
+  Object.assign(parent[index], temp)
+  catalog.update(data)
+  // TODO: 可能需要更新重命名文件夹
+  response(ctx, success('目录修改成功', data))
 }
 
 exports.post = async (ctx) => {
@@ -30,7 +64,7 @@ exports.post = async (ctx) => {
 
   const checkName = (parent, name) => {
     if (parent.find(ele => ele.name === name)) {
-      response(ctx, error('当前目录已存在，请换个名称吧'))
+      response(ctx, error('目录已存在，请换个名称吧'))
       return false
     }
     return true
@@ -50,6 +84,10 @@ exports.post = async (ctx) => {
     data.data.children.push(temp)
   } else {
     const { parent } = catalog.find(data.data.children, params.filepath)
+    if (!parent) {
+      response(ctx, error('父级目录不存在！'))
+      return
+    }
     if (!checkName(parent, params.name)) {
       return
     }
@@ -63,6 +101,10 @@ exports.post = async (ctx) => {
 
 exports.delete = async (ctx) => {
   const filepath = ctx.query.filepath
+  if (filepath === '/base') {
+    response(ctx, error('请勿删除元数据目录'))
+    return
+  }
   const data = catalog.get()
   const { index, parent } = catalog.find(data.data.children, filepath)
   if (index === -1) {

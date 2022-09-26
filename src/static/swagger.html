@@ -51,7 +51,7 @@
     .el-input:hover, .el-input:focus {border-color: var(--color-primary);}
     .el-input-error {border-color: var(--color-error);}
     .el-input-error:hover, .el-input-error:focus {border-color: var(--color-error);}
-    .el-textarea {height: 80px;}
+    .el-textarea {height: 80px;line-height: 16px;}
     .el-button + .el-button {margin-left: 6px;}
     .el-button {
       padding: 4px 8px;
@@ -140,7 +140,7 @@
     }
     .dropdown-visible .dropdown-wrapper {
       visibility: unset;
-      height: 170px;
+      height: 326px;
       overflow-y: auto;
     }
     .api-input {
@@ -204,12 +204,21 @@
           {
             type: 'POST',
             url: '/put',
-            descrip: '修改目录'
+            descrip: '修改目录',
+            param: {
+              name: '目录名称（一般为纯英文）',
+              alias: '目录别名',
+              sort: '目录排序的字段',
+              filepath: '目录路径'
+            }
           },
           {
             type: 'GET',
             url: '/delete',
-            descrip: '删除目录'
+            descrip: '删除目录',
+            param: {
+              filepath: '目录路径'
+            }
           }
         ]
       },

@@ -4,7 +4,7 @@ const fs = require('fs').promises
 
 exports.get = () => require('./catalog.json')
 
-exports.addDir = (dir) => fs.mkdir(dir)
+exports.addDir = (dir) => fs.mkdir(dir, { recursive: true })
 
 exports.getDir = (dir) => fs.readdir(dir, 'utf-8')
 
