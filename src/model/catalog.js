@@ -24,25 +24,25 @@ exports.getNew = (database) => {
   return loop()
 }
 
-exports.find = (data = [], filepath) => {
+exports.find = (data = {}, filepath) => {
   let index = -1
   let parent = null
-  const loop = (arr = []) => {
+  const loop = (arr = [], p) => {
     const len = arr.length
     let i = 0
     while (i < len && index === -1) {
       const item = arr[i]
       if (item.filepath === filepath) {
         index = i
-        parent = arr
+        parent = p
         break
       } else if (item.isdir) {
-        loop(item.children)
+        loop(item.children, item)
       }
       i++
     }
   }
-  loop(data)
+  loop(data.children, data)
   return {
     index,
     parent
@@ -50,6 +50,13 @@ exports.find = (data = [], filepath) => {
 }
 
 exports.update = (data) => catalog.post(data)
+
+exports.rename = (database, filepath, newFilepath) => {
+  return catalog.rename(
+    path.join(database, filepath),
+    path.join(database, newFilepath)
+  )
+}
 
 exports.add = (database, filepath) => catalog.addDir(path.join(database, filepath))
 

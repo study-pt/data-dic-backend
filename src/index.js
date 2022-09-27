@@ -1,8 +1,9 @@
 const Koa = require('koa')
 const Static = require('koa-static')
-const { getIp, getPort, getOption } = require('./utils')
+const { getIp, getPort, getOption, openBrowser } = require('./utils')
 const chalk = require('./utils/chalk')
 const { update } = require('./data/setting')
+const common = require('./model/common')
 
 const checkDataCatalog = (database, static) => {
   const fs = require('fs')
@@ -46,6 +47,8 @@ getPort().then(port => {
       } else {
         if (ctx.URL.pathname === '/prefix') {
           ctx.response.body = prefix
+        } else if (ctx.URL.pathname === '/swagger.html') {
+          ctx.response.body = await common.getSwagger()
         }
         await next()
       }
@@ -56,11 +59,17 @@ getPort().then(port => {
     .listen(port, () => {
       const ipObj = getIp()
       let msg = '\n  Server running at:'
+      let url = ''
       Object.keys(ipObj).forEach(k => {
-        ipObj[k].forEach(ip => {
-          msg += `\n    - ${k}: ${chalk.underline.green(`http://${ip}:${port}/swagger.html`)}`
+        ipObj[k].forEach((ip, i) => {
+          const link = `http://${ip}:${port}/swagger.html`
+          if (k === 'Local' && i === 0) {
+            url = link
+          }
+          msg += `\n    - ${k}: ${chalk.underline.green(link)}`
         })
       })
+      openBrowser(url)
       try {
         process.send({ 'name': 'backend', port })
       } catch {

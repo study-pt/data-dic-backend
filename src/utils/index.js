@@ -65,15 +65,36 @@ exports.getPort = (port = 2000) => {
   if (!option) {
     try {
       option = require(path.resolve(cwd, './package.json'))['data-dic']
+      if (option.database) {
+        option.database = path.resolve(cwd, option.database)
+      }
+      if (option.static) {
+        option.static = path.resolve(cwd, option.static)
+      }
     } catch {
       // no such file
     }
   }
   // 配置大于约定
   option = Object.assign({
-    database: path.resolve(__dirname, '../database'),
-    static: path.resolve(__dirname, '../static'),
+    database: path.resolve(__dirname, '../../database'),
+    static: path.resolve(__dirname, '../../static'),
     prefix: '/data-dic'
   }, option)
   return option
+}
+
+exports.openBrowser = (url) => {
+  const exec = require('child_process').exec
+  switch (process.platform) {
+    case 'win32':
+      exec('start' + url)
+      break
+    case 'darwin':
+      exec('open ' + url)
+      break
+    default:
+      exec('xdg-open ' + url)
+      break
+  }
 }
