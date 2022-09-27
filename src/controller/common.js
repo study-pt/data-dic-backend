@@ -3,9 +3,9 @@ const response = require('../utils/response')
 const common = require('../model/common')
 
 exports.get = async (ctx) => {
-  const catalog = ctx.query.catalog
+  const catalog = ctx.query.filepath
   if (!catalog) {
-    response(ctx, error('缺少必要字段：catalog'))
+    response(ctx, error('缺少必要字段：filepath'))
     return
   }
   try {
@@ -16,7 +16,13 @@ exports.get = async (ctx) => {
   }
 }
 
-exports.put = () => {}
+exports.put = () => {
+  const catalog = ctx.query.filepath
+  if (!catalog) {
+    response(ctx, error('缺少必要字段：filepath'))
+    return
+  }
+}
 
 exports.post = () => {}
 

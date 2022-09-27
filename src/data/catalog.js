@@ -1,6 +1,7 @@
 const path = require('path')
+const { setting } = require('./setting')
 
-const catalog = path.resolve(__dirname, './catalog.json')
+const catalog = path.resolve(setting.static, './static/catalog.json')
 
 const fs = require('fs').promises
 

@@ -5,26 +5,15 @@ const { setting } = require('../data/setting')
 
 exports.get = async (ctx) => {
   const data = await catalog.get()
-
-  if (data.database !== setting.database) {
-    // 更新并获取新的catalog data
-    const newData = await catalog.getNew(setting.database)
-    await catalog.update({
-      database: setting.database,
-      data: newData
-    })
-    response(ctx, success(null, newData))
-  } else {
-    response(ctx, success(null, data.data))
-  }
+  response(ctx, success(null, data.data))
 }
 
 exports.put = async (ctx) => {
   const params = JSON.parse(ctx.request.body)
   const data = await catalog.get()
 
-  if (params.filepath === '/base') {
-    response(ctx, error('不可修改元数据目录'))
+  if (params.filepath === '/base' && params.name !== 'base') {
+    response(ctx, error('不可修改元数据目录名称'))
     return
   }
 
@@ -80,7 +69,7 @@ exports.post = async (ctx) => {
     filepath,
     alias: params.alias || null,
     sort: params.sort,
-    isdir: true
+    isdir: params.isdir === undefined ? true : params.isdir
   }
   if (!params.filepath) {
     if (!checkName(data.data.children, params.name)) {

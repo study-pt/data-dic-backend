@@ -13,5 +13,5 @@ package-lock.json
 *.njsproj
 *.sln
 
-catalog.json
+static
 database

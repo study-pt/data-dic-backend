@@ -3,7 +3,8 @@ const Static = require('koa-static')
 const { getIp, getPort, getOption, openBrowser } = require('./utils')
 const chalk = require('./utils/chalk')
 const { update } = require('./data/setting')
-const common = require('./model/common')
+const path = require('path')
+const catalog = require('./model/catalog')
 
 const checkDataCatalog = (database, static) => {
   const fs = require('fs')
@@ -14,16 +15,8 @@ const checkDataCatalog = (database, static) => {
     console.log(chalk.blue('\n  mkdir database catalog...'))
     fs.mkdirSync(database)
   }
-  fs.mkdir(path.resolve(database, 'base'), { recursive: true }, err => {
-    if (err) {
-      throw err
-    }
-  })
-  fs.mkdir(static, { recursive: true }, (err) => {
-    if (err) {
-      throw err
-    }
-  })
+  fs.mkdirSync(path.resolve(database, 'base'), { recursive: true })
+  fs.mkdirSync(static, { recursive: true })
 }
 
 getPort().then(port => {
@@ -31,6 +24,20 @@ getPort().then(port => {
   const { database, static, prefix } = getOption()
   update({ database, static, prefix })
   checkDataCatalog(database, static)
+
+  catalog.get().then((data) => {
+    if (data.database !== database) {
+      throw false
+    }
+  }).catch(() => {
+    catalog.getNew().then(data => {
+      catalog.update({
+        data,
+        database
+      })
+    })
+  })
+  
   // 更新setting之后注册
   const router = require('./router')
 
@@ -47,12 +54,11 @@ getPort().then(port => {
       } else {
         if (ctx.URL.pathname === '/prefix') {
           ctx.response.body = prefix
-        } else if (ctx.URL.pathname === '/swagger.html') {
-          ctx.response.body = await common.getSwagger()
         }
         await next()
       }
     })
+    .use(Static(path.resolve(__dirname, '../swagger'), { defer: true }))
     .use(Static(static, { defer: true }))
     .use(router.routes())
     .use(router.allowedMethods())

@@ -198,7 +198,8 @@
               name: '目录名称（一般为纯英文）',
               alias: '目录别名',
               sort: '目录排序的字段',
-              filepath: '父级目录路径'
+              filepath: '父级目录路径',
+              isdir: '是否为目录'
             }
           },
           {
@@ -273,59 +274,61 @@
       return dom
     }
     
+
+    const onTitleClick = (e) => {
+      const dom = e.target.className.includes('api-conten')
+        ? e.target
+        : e.target.parentElement
+      const downDom = dom.nextSibling
+      const parentEle = dom.parentElement
+      const visible = downDom.getAttribute('visible')
+      if (visible === '0') {
+        downDom.setAttribute('visible', '1')
+        parentEle.classList.add('dropdown-visible')
+      } else {
+        downDom.setAttribute('visible', '0')
+        parentEle.classList.remove('dropdown-visible')
+      }
+    }
+    const onTest = (data) => {
+      const resEl = document.getElementById('textarea-res-' + data.url)
+      let url = data.url
+      let params
+      if (data.param) {
+        const input = document.getElementById('input-' + data.url)
+        const textarea = document.getElementById('textarea-' + data.url)
+        if (textarea.className.includes('el-input-error')) {
+          resEl.value = '请求参数必须是json格式！'
+          return
+        }
+        url = input.value
+        if (data.type === 'GET') {
+          const obj = JSON.parse(textarea.value)
+          url += '?' + Object.keys(obj).map(k => `${k}=${obj[k]}`).join('&')
+        } else {
+          params = textarea.value
+        }
+      }
+      request(data.type, url, params).then(res => {
+        if (resEl.className.includes('el-input-error')) {
+          resEl.classList.remove('el-input-error')
+        }
+        resEl.value = JSON.stringify(JSON.parse(res), null, 2)
+      }).catch(err => {
+        if (!resEl.className.includes('el-input-error')) {
+          resEl.classList.add('el-input-error')
+        }
+        resEl.value = err.toString()
+      })
+    }
+    const onReset = (data) => {
+      document.getElementById('input-' + data.url).value = data.url
+      document.getElementById('textarea-' + data.url).value = data.param ? JSON.stringify(data.param, null, 2) : ''
+    }
+      
     const createApiItem = (item) => {
       const url = item.url
       const isGet = item.type === 'GET'
-      const onTitleClick = (e) => {
-        const dom = e.target.className.includes('api-conten')
-          ? e.target
-          : e.target.parentElement
-        const downDom = dom.nextSibling
-        const parentEle = dom.parentElement
-        const visible = downDom.getAttribute('visible')
-        if (visible === '0') {
-          downDom.setAttribute('visible', '1')
-          parentEle.classList.add('dropdown-visible')
-        } else {
-          downDom.setAttribute('visible', '0')
-          parentEle.classList.remove('dropdown-visible')
-        }
-      }
-      const onTest = (data) => {
-        const resEl = document.getElementById('textarea-res-' + data.url)
-        let url = data.url
-        let params
-        if (data.param) {
-          const input = document.getElementById('input-' + data.url)
-          const textarea = document.getElementById('textarea-' + data.url)
-          if (textarea.className.includes('el-input-error')) {
-            resEl.value = '请求参数必须是json格式！'
-            return
-          }
-          url = input.value
-          if (data.type === 'GET') {
-            const obj = JSON.parse(textarea.value)
-            url += '?' + Object.keys(obj).map(k => `${k}=${obj[k]}`).join('&')
-          } else {
-            params = textarea.value
-          }
-        }
-        request(data.type, url, params).then(res => {
-          if (resEl.className.includes('el-input-error')) {
-            resEl.classList.remove('el-input-error')
-          }
-          resEl.value = JSON.stringify(JSON.parse(res), null, 2)
-        }).catch(err => {
-          if (!resEl.className.includes('el-input-error')) {
-            resEl.classList.add('el-input-error')
-          }
-          resEl.value = err.toString()
-        })
-      }
-      const onReset = (data) => {
-        document.getElementById('input-' + data.url).value = data.url
-        document.getElementById('textarea-' + data.url).value = data.param ? JSON.stringify(data.param, null, 2) : ''
-      }
       return h('li', { class: 'api-warpper' }, [
         h('p', {
           class: 'api-content cursor-pointer relative',
