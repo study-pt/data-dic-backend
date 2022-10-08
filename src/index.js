@@ -30,7 +30,7 @@ getPort().then(port => {
       throw false
     }
   }).catch(() => {
-    catalog.getNew().then(data => {
+    catalog.getNew(database).then(data => {
       catalog.update({
         data,
         database
